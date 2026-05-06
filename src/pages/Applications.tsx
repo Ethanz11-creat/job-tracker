@@ -1,11 +1,9 @@
 import { useState } from 'react'
 import { Plus, Search, ArrowUpDown } from 'lucide-react'
-import { Card, CardContent } from '../components/ui/card'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../components/ui/dialog'
-import { Badge } from '../components/ui/badge'
 import { useApplications } from '../hooks/useApplications'
 import { useCompanies } from '../hooks/useCompanies'
 import { MACRO_STATUSES, PRIORITY_LABELS } from '../lib/constants'
@@ -58,10 +56,18 @@ export function Applications() {
       return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
     })
 
+  const statusPill = (status: string) => {
+    const pillClass = MACRO_STATUSES[status]?.pillClass || 'status-gray'
+    return <span className={`pill ${pillClass}`}>{status}</span>
+  }
+
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-heading font-semibold">岗位列表</h1>
+    <div className="space-y-6 animate-fade-in-up">
+      <div className="flex items-end justify-between">
+        <div>
+          <h1 className="page-title">岗位列表</h1>
+          <p className="section-subtitle mt-2">记录投递的每一个机会</p>
+        </div>
         <Button onClick={() => setOpen(true)}>
           <Plus className="mr-1 h-4 w-4" />
           添加岗位
@@ -70,7 +76,7 @@ export function Applications() {
 
       <div className="flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-[200px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-text-muted" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4" style={{ color: '#6b6558' }} strokeWidth={2} />
           <Input
             placeholder="搜索岗位或公司..."
             className="pl-9"
@@ -79,7 +85,7 @@ export function Applications() {
           />
         </div>
         <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="w-[150px]">
+          <SelectTrigger className="w-[160px]">
             <SelectValue placeholder="宏观阶段" />
           </SelectTrigger>
           <SelectContent>
@@ -90,7 +96,7 @@ export function Applications() {
           </SelectContent>
         </Select>
         <Select value={companyFilter} onValueChange={setCompanyFilter}>
-          <SelectTrigger className="w-[150px]">
+          <SelectTrigger className="w-[160px]">
             <SelectValue placeholder="公司" />
           </SelectTrigger>
           <SelectContent>
@@ -101,8 +107,8 @@ export function Applications() {
           </SelectContent>
         </Select>
         <Select value={sortBy} onValueChange={setSortBy}>
-          <SelectTrigger className="w-[150px]">
-            <ArrowUpDown className="mr-1 h-4 w-4" />
+          <SelectTrigger className="w-[160px]">
+            <ArrowUpDown className="mr-1 h-4 w-4" strokeWidth={2} />
             <SelectValue placeholder="排序" />
           </SelectTrigger>
           <SelectContent>
@@ -113,48 +119,61 @@ export function Applications() {
         </Select>
       </div>
 
-      <div className="space-y-3">
-        {filtered.map(app => (
+      {/* Database-style table */}
+      <div className="rounded-xl overflow-hidden" style={{
+        border: '1px solid rgba(255,255,255,0.06)',
+        background: 'rgba(255,255,255,0.02)'
+      }}>
+        {/* Header */}
+        <div className="flex items-center text-xs font-semibold uppercase tracking-wider"
+          style={{
+            background: 'rgba(255,255,255,0.03)',
+            borderBottom: '1px solid rgba(255,255,255,0.06)',
+            color: '#6b6558'
+          }}>
+          <div className="flex-1 min-w-[200px] px-4 py-3">岗位名称</div>
+          <div className="w-32 px-4 py-3">公司</div>
+          <div className="w-28 px-4 py-3">状态</div>
+          <div className="w-24 px-4 py-3">城市</div>
+          <div className="w-32 px-4 py-3">薪资</div>
+          <div className="w-28 px-4 py-3 text-right">截止</div>
+        </div>
+        {/* Rows */}
+        {filtered.map((app) => (
           <Link key={app.id} to={`/applications/${app.id}`}>
-            <Card className="hover:shadow-md transition-shadow cursor-pointer">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3">
-                      <h3 className="font-medium">{app.position_name}</h3>
-                      <Badge style={{ backgroundColor: MACRO_STATUSES[app.status]?.color + '20', color: MACRO_STATUSES[app.status]?.color }}>
-                        {app.status}
-                      </Badge>
-                      <Badge variant="secondary">{PRIORITY_LABELS[app.priority]}</Badge>
-                    </div>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-text-secondary">
-                      <span>{app.company?.name}</span>
-                      <span>{app.city}</span>
-                      <span>{app.salary_range}</span>
-                      <span>{app.channel}</span>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    {app.deadline && (
-                      <div className="text-sm">
-                        {differenceInDays(parseISO(app.deadline), new Date()) <= 3 ? (
-                          <span className="text-red-500 font-medium">
-                            剩 {differenceInDays(parseISO(app.deadline), new Date())} 天
-                          </span>
-                        ) : (
-                          <span className="text-text-secondary">{format(parseISO(app.deadline), 'MM-dd')}</span>
-                        )}
-                      </div>
-                    )}
-                    <div className="text-xs text-text-muted mt-1">
-                      {format(parseISO(app.updated_at), 'MM-dd HH:mm')} 更新
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <div className="db-row flex items-center px-0 cursor-pointer transition-all duration-200"
+              style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}
+              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.03)'}
+              onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+            >
+              <div className="flex-1 min-w-[200px] px-4 py-3">
+                <span className="font-medium text-sm" style={{ color: '#e8e6e1' }}>{app.position_name}</span>
+              </div>
+              <div className="w-32 px-4 py-3 text-sm" style={{ color: '#a09b8c' }}>{app.company?.name}</div>
+              <div className="w-28 px-4 py-3">{statusPill(app.status)}</div>
+              <div className="w-24 px-4 py-3 text-sm" style={{ color: '#a09b8c' }}>{app.city || '-'}</div>
+              <div className="w-32 px-4 py-3 text-sm" style={{ color: '#a09b8c' }}>{app.salary_range || '-'}</div>
+              <div className="w-28 px-4 py-3 text-right text-sm">
+                {app.deadline ? (
+                  differenceInDays(parseISO(app.deadline), new Date()) <= 3 ? (
+                    <span style={{ color: '#f87171' }} className="font-medium">
+                      剩 {differenceInDays(parseISO(app.deadline), new Date())} 天
+                    </span>
+                  ) : (
+                    <span style={{ color: '#6b6558' }}>{format(parseISO(app.deadline), 'MM-dd')}</span>
+                  )
+                ) : (
+                  <span style={{ color: '#6b6558' }}>-</span>
+                )}
+              </div>
+            </div>
           </Link>
         ))}
+        {filtered.length === 0 && (
+          <div className="px-4 py-8 text-center text-sm" style={{ color: '#6b6558' }}>
+            暂无岗位记录
+          </div>
+        )}
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>

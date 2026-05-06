@@ -1,11 +1,11 @@
-export const MACRO_STATUSES: Record<string, { label: string; color: string; order: number }> = {
-  '待关注': { label: '待关注', color: '#9ca3af', order: 0 },
-  '待投递': { label: '待投递', color: '#f59e0b', order: 1 },
-  '已投递': { label: '已投递', color: '#3b82f6', order: 2 },
-  '测评中': { label: '测评/考试中', color: '#8b5cf6', order: 3 },
-  '面试中': { label: '面试流程中', color: '#ec4899', order: 4 },
-  'Offer': { label: 'Offer 阶段', color: '#10b981', order: 5 },
-  '已结束': { label: '已结束', color: '#6b7280', order: 6 },
+export const MACRO_STATUSES: Record<string, { label: string; color: string; order: number; pillClass: string }> = {
+  '待关注': { label: '待关注', color: '#9ca3af', order: 0, pillClass: 'status-gray' },
+  '待投递': { label: '待投递', color: '#f59e0b', order: 1, pillClass: 'status-amber' },
+  '已投递': { label: '已投递', color: '#3b82f6', order: 2, pillClass: 'status-blue' },
+  '测评中': { label: '测评/考试中', color: '#8b5cf6', order: 3, pillClass: 'status-purple' },
+  '面试中': { label: '面试流程中', color: '#ec4899', order: 4, pillClass: 'status-pink' },
+  'Offer': { label: 'Offer 阶段', color: '#10b981', order: 5, pillClass: 'status-green' },
+  '已结束': { label: '已结束', color: '#6b7280', order: 6, pillClass: 'status-red' },
 }
 
 export const STAGE_TYPES: Record<string, { label: string; category: 'assessment' | 'interview' | 'follow_up' }> = {

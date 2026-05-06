@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { ArrowLeft, Plus, Clock, MapPin, DollarSign, Send, StickyNote, Tag, CheckCircle2, XCircle, MinusCircle } from 'lucide-react'
+import { ArrowLeft, Plus, Clock, MapPin, DollarSign, Send, FileText, CheckCircle2, XCircle, MinusCircle } from 'lucide-react'
 import { Card, CardContent } from '../components/ui/card'
 import { Button } from '../components/ui/button'
 import { Input } from '../components/ui/input'
@@ -32,7 +32,7 @@ export function ApplicationDetail() {
   })
 
   const app = applications.find(a => a.id === id)
-  if (!app) return <div className="p-6">岗位不存在</div>
+  if (!app) return <div className="p-6 font-body text-lg" style={{ color: '#6b6558' }}>岗位不存在</div>
 
   const handleUpdate = async (updates: Record<string, unknown>) => {
     await updateApplication(id!, updates)
@@ -50,24 +50,34 @@ export function ApplicationDetail() {
   }
 
   const statusIcon = (result: string) => {
-    if (result === '已通过') return <CheckCircle2 className="h-4 w-4 text-green-500" />
-    if (result === '未通过') return <XCircle className="h-4 w-4 text-red-500" />
-    return <MinusCircle className="h-4 w-4 text-gray-400" />
+    if (result === '已通过') return <CheckCircle2 className="h-4 w-4" style={{ color: '#4ade80' }} strokeWidth={2} />
+    if (result === '未通过') return <XCircle className="h-4 w-4" style={{ color: '#f87171' }} strokeWidth={2} />
+    return <MinusCircle className="h-4 w-4" style={{ color: '#6b6558' }} strokeWidth={2} />
+  }
+
+  const statusPill = (status: string) => {
+    const pillClass = MACRO_STATUSES[status]?.pillClass || 'status-gray'
+    return <span className={`pill ${pillClass}`}>{status}</span>
   }
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="space-y-6 animate-fade-in-up">
       <div className="flex items-center gap-4">
-        <Link to="/applications" className="text-text-secondary hover:text-text">
-          <ArrowLeft className="h-5 w-5" />
+        <Link to="/applications" className="transition-colors duration-200" style={{ color: '#6b6558' }}
+          onMouseEnter={e => e.currentTarget.style.color = '#e8e6e1'}
+          onMouseLeave={e => e.currentTarget.style.color = '#6b6558'}
+        >
+          <ArrowLeft className="h-5 w-5" strokeWidth={1.5} />
         </Link>
         <div className="flex-1">
-          <h1 className="text-2xl font-heading font-semibold">{app.position_name}</h1>
-          <p className="text-sm text-text-secondary">
-            <Link to={`/companies/${app.company_id}`} className="hover:text-primary">{app.company?.name}</Link>
+          <h1 className="page-title">{app.position_name}</h1>
+          <p className="text-sm font-body mt-1" style={{ color: '#a09b8c' }}>
+            <Link to={`/companies/${app.company_id}`} className="transition-colors duration-200 hover:text-[#c9a96e]"
+              style={{ color: '#a09b8c' }}
+            >{app.company?.name}</Link>
           </p>
         </div>
-        <Button variant="outline" onClick={() => setEditing(!editing)}>
+        <Button variant="outline" size="sm" onClick={() => setEditing(!editing)}>
           {editing ? '取消' : '编辑'}
         </Button>
       </div>
@@ -99,32 +109,32 @@ export function ApplicationDetail() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <Card>
             <CardContent className="p-4 space-y-3">
-              <div className="flex items-center gap-2 text-sm">
-                <Clock className="h-4 w-4 text-text-secondary" />
-                <Badge>{app.status}</Badge>
+              <div className="flex items-center gap-2 text-sm font-body">
+                <Clock className="h-4 w-4" strokeWidth={1.5} style={{ color: '#6b6558' }} />
+                {statusPill(app.status)}
                 <Badge variant="secondary">意向 {app.priority}/5</Badge>
               </div>
-              <div className="flex items-center gap-2 text-sm text-text-secondary">
-                <MapPin className="h-4 w-4" />{app.city || '未设置'}
+              <div className="flex items-center gap-2 text-sm font-body" style={{ color: '#a09b8c' }}>
+                <MapPin className="h-4 w-4" strokeWidth={1.5} />{app.city || '未设置'}
               </div>
-              <div className="flex items-center gap-2 text-sm text-text-secondary">
-                <DollarSign className="h-4 w-4" />{app.salary_range || '未设置'}
+              <div className="flex items-center gap-2 text-sm font-body" style={{ color: '#a09b8c' }}>
+                <DollarSign className="h-4 w-4" strokeWidth={1.5} />{app.salary_range || '未设置'}
               </div>
-              <div className="flex items-center gap-2 text-sm text-text-secondary">
-                <Send className="h-4 w-4" />{app.channel || '未设置'}
+              <div className="flex items-center gap-2 text-sm font-body" style={{ color: '#a09b8c' }}>
+                <Send className="h-4 w-4" strokeWidth={1.5} />{app.channel || '未设置'}
               </div>
               {app.deadline && (
-                <div className="text-sm text-text-secondary">截止: {format(parseISO(app.deadline), 'yyyy-MM-dd')}</div>
+                <div className="text-sm font-body" style={{ color: '#a09b8c' }}>截止: {format(parseISO(app.deadline), 'yyyy-MM-dd')}</div>
               )}
             </CardContent>
           </Card>
           <Card className="md:col-span-2">
             <CardContent className="p-4">
               <div className="flex items-center gap-2 mb-2">
-                <StickyNote className="h-4 w-4 text-text-secondary" />
-                <span className="text-sm font-medium">备注</span>
+                <FileText className="h-4 w-4" strokeWidth={1.5} style={{ color: '#6b6558' }} />
+                <span className="text-sm font-heading">备注</span>
               </div>
-              <p className="text-sm text-text-secondary whitespace-pre-wrap">{app.notes || '暂无备注'}</p>
+              <p className="text-sm font-body whitespace-pre-wrap" style={{ color: '#a09b8c' }}>{app.notes || '暂无备注'}</p>
             </CardContent>
           </Card>
         </div>
@@ -132,55 +142,66 @@ export function ApplicationDetail() {
 
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-heading font-semibold">流程节点</h2>
+          <div>
+            <h2 className="font-heading text-xl" style={{ color: '#e8e6e1' }}>流程节点</h2>
+            <p className="text-sm font-body" style={{ color: '#6b6558' }}>记录面试进度</p>
+          </div>
           <Button size="sm" onClick={() => setStageOpen(true)}>
             <Plus className="mr-1 h-4 w-4" />新增节点
           </Button>
         </div>
 
         {stages.length === 0 ? (
-          <p className="text-text-secondary">暂无流程节点</p>
+          <p className="font-body text-sm" style={{ color: '#6b6558' }}>暂无流程节点</p>
         ) : (
-          <div className="relative pl-6 border-l-2 border-border space-y-6">
-            {stages.map(stage => (
+          <div className="relative pl-6 space-y-4" style={{ borderLeft: '1px solid rgba(255,255,255,0.08)' }}>
+            {stages.map((stage) => (
               <div key={stage.id} className="relative">
-                <div className="absolute -left-[29px] top-0 h-5 w-5 rounded-full bg-surface border-2 border-primary flex items-center justify-center">
-                  <div className="h-2 w-2 rounded-full bg-primary" />
+                <div className="absolute -left-[25px] top-1 h-4 w-4 rounded-full flex items-center justify-center"
+                  style={{
+                    background: '#0a0a0f',
+                    border: '2px solid #c9a96e'
+                  }}
+                >
+                  <div className="h-1.5 w-1.5 rounded-full" style={{ background: '#c9a96e' }} />
                 </div>
-                <Card>
+                <Card className="group">
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">{stage.raw_stage_name || STAGE_TYPES[stage.stage_type]?.label || stage.stage_type}</span>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-heading text-sm" style={{ color: '#e8e6e1' }}>{stage.raw_stage_name || STAGE_TYPES[stage.stage_type]?.label || stage.stage_type}</span>
                         {stage.round_number && <Badge variant="secondary">第 {stage.round_number} 轮</Badge>}
                         {statusIcon(stage.result_status)}
                       </div>
                       <div className="flex items-center gap-2">
-                        <Badge variant={stage.execution_status === '已完成' ? 'default' : stage.execution_status === '已预约' ? 'secondary' : 'outline'}>
+                        <Badge variant={stage.execution_status === '已完成' ? 'success' : stage.execution_status === '已预约' ? 'info' : 'outline'}>
                           {stage.execution_status}
                         </Badge>
-                        <Badge variant={stage.result_status === '已通过' ? 'default' : stage.result_status === '未通过' ? 'destructive' : 'secondary'}>
+                        <Badge variant={stage.result_status === '已通过' ? 'success' : stage.result_status === '未通过' ? 'destructive' : 'secondary'}>
                           {stage.result_status}
                         </Badge>
                       </div>
                     </div>
-                    <div className="flex items-center gap-4 mt-2 text-sm text-text-secondary">
+                    <div className="flex items-center gap-4 mt-2 text-xs font-body" style={{ color: '#6b6558' }}>
                       {stage.scheduled_date && <span>预约: {format(parseISO(stage.scheduled_date), 'MM-dd HH:mm')}</span>}
                       {stage.completed_date && <span>完成: {format(parseISO(stage.completed_date), 'MM-dd HH:mm')}</span>}
                     </div>
                     {stage.feedback && (
-                      <div className="mt-3 p-3 bg-gray-50 rounded-lg text-sm">
+                      <div className="mt-3 p-3 rounded-md" style={{
+                        background: 'rgba(255,255,255,0.03)',
+                        border: '1px solid rgba(255,255,255,0.06)'
+                      }}>
                         <div className="flex items-center gap-2 mb-1">
-                          <Tag className="h-3 w-3" />
-                          <span className="font-medium">复盘</span>
+                          <div className="h-2 w-2 rounded-full" style={{ background: '#f0a830' }} />
+                          <span className="font-heading text-xs" style={{ color: '#e8e6e1' }}>复盘</span>
                         </div>
-                        {stage.feedback}
+                        <span className="font-body text-sm" style={{ color: '#a09b8c' }}>{stage.feedback}</span>
                       </div>
                     )}
                     {stage.strength_tags && stage.strength_tags.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-1">
                         {stage.strength_tags.map(tag => (
-                          <Badge key={tag} variant="default" className="text-xs">{tag}</Badge>
+                          <Badge key={tag} variant="success" className="text-xs">{tag}</Badge>
                         ))}
                       </div>
                     )}

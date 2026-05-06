@@ -48,18 +48,21 @@ export function Calendar() {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-heading font-semibold">日历</h1>
+    <div className="space-y-6 animate-fade-in-up">
+      <div className="flex items-end justify-between">
+        <div>
+          <h1 className="page-title">日历</h1>
+          <p className="section-subtitle mt-2">日程一览</p>
+        </div>
         <div className="flex items-center gap-3">
           <Button variant="outline" size="sm" onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1))}>
-            <ChevronLeft className="h-4 w-4" />
+            <ChevronLeft className="h-4 w-4" strokeWidth={2} />
           </Button>
-          <span className="text-lg font-medium w-32 text-center">
+          <span className="text-xl w-36 text-center font-heading" style={{ color: '#e8e6e1' }}>
             {format(currentDate, 'yyyy年 MM月', { locale: zhCN })}
           </span>
           <Button variant="outline" size="sm" onClick={() => setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() + 1))}>
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-4 w-4" strokeWidth={2} />
           </Button>
         </div>
         <Button size="sm" onClick={() => setOpen(true)}>
@@ -67,35 +70,61 @@ export function Calendar() {
         </Button>
       </div>
 
-      <div className="grid grid-cols-7 gap-px bg-border rounded-lg overflow-hidden">
-        {['一', '二', '三', '四', '五', '六', '日'].map(d => (
-          <div key={d} className="bg-surface-elevated p-3 text-center text-sm font-medium text-text-secondary">
-            周{d}
-          </div>
-        ))}
-        {days.map(day => {
-          const dayEvents = getDayEvents(day)
-          return (
-            <div
-              key={day.toISOString()}
-              className={`bg-surface-elevated min-h-[100px] p-2 ${isToday(day) ? 'ring-2 ring-primary ring-inset' : ''}`}
-            >
-              <div className={`text-sm font-medium mb-1 ${isSameMonth(day, currentDate) ? 'text-text' : 'text-text-muted'}`}>
-                {format(day, 'd')}
-              </div>
-              <div className="space-y-1">
-                {dayEvents.slice(0, 3).map((e, i) => (
-                  <div key={i} className="text-xs px-1.5 py-0.5 rounded bg-primary/10 text-primary truncate">
-                    {'stage_type' in e ? EVENT_TYPE_LABELS[e.stage_type] || e.stage_type : e.title}
-                  </div>
-                ))}
-                {dayEvents.length > 3 && (
-                  <div className="text-xs text-text-muted">+{dayEvents.length - 3}</div>
-                )}
-              </div>
+      <div className="rounded-xl overflow-hidden" style={{
+        border: '1px solid rgba(255,255,255,0.06)',
+        background: 'rgba(255,255,255,0.02)'
+      }}>
+        {/* Weekday headers */}
+        <div className="grid grid-cols-7" style={{
+          background: 'rgba(255,255,255,0.03)',
+          borderBottom: '1px solid rgba(255,255,255,0.06)'
+        }}>
+          {['一', '二', '三', '四', '五', '六', '日'].map(d => (
+            <div key={d} className="p-3 text-center text-sm font-heading font-semibold" style={{ color: '#6b6558' }}>
+              周{d}
             </div>
-          )
-        })}
+          ))}
+        </div>
+        {/* Days */}
+        <div className="grid grid-cols-7">
+          {days.map(day => {
+            const dayEvents = getDayEvents(day)
+            const isCurrentDay = isToday(day)
+            const isCurrentMonth = isSameMonth(day, currentDate)
+            return (
+              <div
+                key={day.toISOString()}
+                className="min-h-[100px] p-2 transition-colors duration-200"
+                style={{
+                  borderRight: '1px solid rgba(255,255,255,0.04)',
+                  borderBottom: '1px solid rgba(255,255,255,0.04)',
+                  background: isCurrentDay ? 'rgba(201,169,110,0.08)' : isCurrentMonth ? 'transparent' : 'rgba(255,255,255,0.01)'
+                }}
+              >
+                <div className={`text-sm font-heading font-semibold mb-1 ${
+                  isCurrentDay ? 'text-[#c9a96e]' : isCurrentMonth ? 'text-[#e8e6e1]' : 'text-[#333]'
+                }`}>
+                  {format(day, 'd')}
+                </div>
+                <div className="space-y-1">
+                  {dayEvents.slice(0, 3).map((e, i) => (
+                    <div key={i} className="text-xs px-1.5 py-0.5 rounded font-body truncate"
+                      style={{
+                        background: 'rgba(217,119,6,0.12)',
+                        color: '#f0a830'
+                      }}
+                    >
+                      {'stage_type' in e ? EVENT_TYPE_LABELS[e.stage_type] || e.stage_type : e.title}
+                    </div>
+                  ))}
+                  {dayEvents.length > 3 && (
+                    <div className="text-xs font-body" style={{ color: '#6b6558' }}>+{dayEvents.length - 3}</div>
+                  )}
+                </div>
+              </div>
+            )
+          })}
+        </div>
       </div>
 
       <Dialog open={open} onOpenChange={setOpen}>

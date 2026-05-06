@@ -21,50 +21,60 @@ export function Board() {
     setDraggingId(null)
   }
 
+  const statusPill = (status: string) => {
+    const pillClass = MACRO_STATUSES[status]?.pillClass || 'status-gray'
+    return <span className={`pill ${pillClass}`}>{status}</span>
+  }
+
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-heading font-semibold">宏观看板</h1>
+    <div className="space-y-6 animate-fade-in-up">
+      <div>
+        <h1 className="page-title">宏观看板</h1>
+        <p className="section-subtitle mt-2">拖拽卡片更新进度</p>
+      </div>
 
       <div className="flex gap-4 overflow-x-auto pb-4">
-        {statuses.map(status => {
+        {statuses.map((status) => {
           const apps = applications.filter(a => a.status === status)
           return (
             <div
               key={status}
-              className="flex-shrink-0 w-72 space-y-3"
+              className="flex-shrink-0 w-72 space-y-2"
               onDragOver={e => e.preventDefault()}
               onDrop={() => handleDrop(status)}
             >
-              <div className="flex items-center justify-between">
+              {/* Column header */}
+              <div className="flex items-center justify-between rounded-lg px-3 py-2.5"
+                style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  border: '1px solid rgba(255,255,255,0.06)'
+                }}>
                 <div className="flex items-center gap-2">
-                  <div
-                    className="h-3 w-3 rounded-full"
-                    style={{ backgroundColor: MACRO_STATUSES[status]?.color }}
-                  />
-                  <span className="font-medium">{status}</span>
+                  {statusPill(status)}
                 </div>
-                <span className="text-sm text-text-secondary">{apps.length}</span>
+                <span className="text-sm font-medium" style={{ color: '#6b6558' }}>{apps.length}</span>
               </div>
 
-              <div className="space-y-2 min-h-[100px]">
-                {apps.map(app => (
+              {/* Cards */}
+              <div className="space-y-2 min-h-[80px]">
+                {apps.map((app) => (
                   <Card
                     key={app.id}
                     draggable
                     onDragStart={() => handleDragStart(app.id)}
-                    className="cursor-grab active:cursor-grabbing hover:shadow-md transition-shadow"
+                    className="cursor-grab active:cursor-grabbing transition-all duration-200 hover:border-[rgba(255,255,255,0.12)]"
                   >
-                    <CardContent className="p-3">
-                      <div className="font-medium text-sm">{app.position_name}</div>
-                      <div className="text-xs text-text-secondary mt-1">{app.company?.name}</div>
+                    <CardContent className="p-3.5">
+                      <div className="font-heading text-sm" style={{ color: '#e8e6e1' }}>{app.position_name}</div>
+                      <div className="text-xs mt-1" style={{ color: '#a09b8c' }}>{app.company?.name}</div>
                       {app.deadline && (
-                        <div className="text-xs mt-2">
+                        <div className="text-xs mt-2.5 font-body">
                           {differenceInDays(parseISO(app.deadline), new Date()) <= 3 ? (
-                            <span className="text-red-500">
+                            <span style={{ color: '#f87171' }} className="font-medium">
                               剩 {differenceInDays(parseISO(app.deadline), new Date())} 天
                             </span>
                           ) : (
-                            <span className="text-text-muted">
+                            <span style={{ color: '#6b6558' }}>
                               {format(parseISO(app.deadline), 'MM-dd')}
                             </span>
                           )}
